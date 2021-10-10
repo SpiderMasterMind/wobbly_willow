@@ -8,7 +8,7 @@ enum GameMode {
 
 const SCREEN_WIDTH: i32 = 80;
 const SCREEN_HEIGHT: i32 = 50;
-const FRAME_DURATION: f32 = 75.0;
+const FRAME_DURATION: f32 = 30.0;
 
 struct Player {
     x: i32,
@@ -52,6 +52,7 @@ impl State {
     fn play(&mut self, ctx: &mut BTerm) {
         ctx.cls_bg(NAVY);
         self.frame_time += ctx.frame_time_ms;
+        // time elapsed since last tick
 
         if self.frame_time > FRAME_DURATION {
             self.frame_time = 0.0;
@@ -63,8 +64,10 @@ impl State {
         }
 
         self.player.render(ctx);
+
         ctx.print(0, 0, "Press Space to WOBBLE");
         ctx.print(0, 1, &format!("Score: {}", self.score));
+        ctx.print(0, 2, &format!("FPS: {}", (1000.0 / ctx.frame_time_ms).round()));
 
         self.obstacle.render(ctx, self.player.x);
 
@@ -100,7 +103,6 @@ impl State {
     fn restart(&mut self) {
         self.mode = GameMode::Playing;
         self.frame_time = 0.0;
-        self.mode = GameMode::Playing;
         self.obstacle = Obstacle::new(SCREEN_WIDTH, 0);
         self.score = 0;
     }
@@ -143,6 +145,7 @@ impl Player {
     fn render(&mut self, ctx: &mut BTerm) {
         ctx.set(
             0,
+            // on restart this is the last position
             self.y,
             YELLOW,
             BLACK,
@@ -152,7 +155,7 @@ impl Player {
 
     fn gravity_and_move(&mut self) {
         if self.velocity < 2.0 {
-            self.velocity += 0.2;
+            self.velocity += 0.3;
         }
 
         self.y += self.velocity as i32;
